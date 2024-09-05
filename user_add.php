@@ -1,0 +1,110 @@
+<?php
+// เชื่อมต่อกับฐานข้อมูล
+include 'connect_db.php';
+
+// ตรวจสอบว่ามีการส่งข้อมูลมาหรือไม่
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // รับข้อมูลจากฟอร์ม
+    $user_name = $_POST['user_name'];
+    $user_surname = $_POST['user_surname'];
+
+    // ตรวจสอบข้อมูลที่ได้รับ
+    if (!empty($user_name) && !empty($user_surname)) {
+        // สร้างคำสั่ง SQL สำหรับการเพิ่มข้อมูล
+        $sql = "INSERT INTO users (user_name, user_surname) VALUES (?, ?)";
+
+        // เตรียมคำสั่ง SQL
+        if ($stmt = $conn->prepare($sql)) {
+            // ผูกตัวแปรกับคำสั่ง SQL
+            $stmt->bind_param("ss", $user_name, $user_surname);
+
+            // ดำเนินการคำสั่ง SQL
+            if ($stmt->execute()) {
+                echo "<p>เพิ่มข้อมูลผู้ใช้สำเร็จ</p>";
+            } else {
+                echo "<p>เกิดข้อผิดพลาด: " . $stmt->error . "</p>";
+            }
+
+            // ปิดคำสั่ง SQL
+            $stmt->close();
+        } else {
+            echo "<p>ไม่สามารถเตรียมคำสั่ง SQL ได้</p>";
+        }
+    } else {
+        echo "<p>กรุณากรอกข้อมูลให้ครบถ้วน</p>";
+    }
+}
+
+// ปิดการเชื่อมต่อ
+$conn->close();
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เพิ่มข้อมูลผู้ใช้</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        input[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .button-cancel {
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<h1>เพิ่มข้อมูลผู้ใช้</h1>
+
+<form action="user_add.php" method="post">
+    <label for="user_name">ชื่อ:</label>
+    <input type="text" id="user_name" name="user_name" required>
+
+    <label for="user_surname">นามสกุล:</label>
+    <input type="text" id="user_surname" name="user_surname" required>
+
+    <input type="submit" value="ตกลง">
+    <a href="user_show.php" class="button-cancel">ยกเลิก</a>
+</form>
+
+</body>
+</html>
